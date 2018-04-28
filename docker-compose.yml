@@ -1,0 +1,23 @@
+version: '3.3'
+
+services:
+  # Primary services
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TINI_VERSION: v0.15.0
+    image: pandas-mapper
+    container_name: pandas-mapper
+    command: jupyter lab . --ip=0.0.0.0 --allow-root --no-browser
+    networks:
+      - services
+    volumes:
+      - ./.data/services/ap/bash_history:/root/.bash_history
+      - .:/app
+    ports:
+      - "${HOST_JUPYTER_PORT:-8888}:8888"
+
+networks:
+  services:
