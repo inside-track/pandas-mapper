@@ -2,6 +2,8 @@
 
 Goals:
 * To remove PdMapper from Pemi
+* Simplify PdMapper interface
+* More flexible handlers
 * Contribute to Pandas ecosystem
 
 Idea:
