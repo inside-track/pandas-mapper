@@ -26,10 +26,10 @@ def build(ctx):
 @task(help={
     'host-port': 'Used to override the default flask port on the host (default: 8888)'
 })
-def up(ctx, host_port=8888):
+def up(ctx, jupyter_port=8888):
     'Start up development environment'
 
-    os.environ['HOST_JUPYTER_PORT'] = str(host_port)
+    os.environ['HOST_JUPYTER_PORT'] = str(jupyter_port)
     ctx.run('docker-compose up -d')
 
 @task
