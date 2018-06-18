@@ -1,9 +1,10 @@
 # pandas-mapper
 
-The pandas-mapper provides a concise syntax for applying mapping
-transformations to [Pandas](http://pandas.pydata.org/) Dataframes
-commonly required for ETL workflows.  Possibly the biggest benefit to
-using pandas-mapper over the native
+The pandas-mapper is a Python pacckage that provides a concise syntax
+for applying mapping transformations to
+[Pandas](http://pandas.pydata.org/) Dataframes commonly required for
+ETL workflows.  Possibly the biggest benefit to using pandas-mapper
+over the native
 [pandas.Dataframe.apply](http://pandas.pydata.org/pandas-docs/version/0.22/generated/pandas.DataFrame.apply.html)
 method is a robust error handling mechanism.  Instead of raising an
 error, mapping errors can be redirected to an errors Dataframe, which
@@ -28,7 +29,7 @@ When you import this package in your project, it adds the `mapping` method to Pa
 objects.  Suppose you had a dataframe containing integers and the English word for the integer
 and you want to translate the names to Spanish.
 
-```
+```python
 import pandas as pd
 import pandas_mapper
 
@@ -42,9 +43,16 @@ df = pd.DataFrame(
 
 ```
 
+| num | name  | num_name |
+| -   | -     | -        |
+| 1   | one   | 1-one    |
+| 2   | two   | 2-two    |
+| 3   | three | 3-three  |
+
+
 A stupidly-simple translation method might be
 
-```
+```python
 def translate(val):
     if val == 1:
         return 'uno'
@@ -58,15 +66,24 @@ def translate(val):
 
 The translation can be accomplished using pandas-mapper via
 
-```
+```python
     mapper = df.mapping([('num', 'translated', translate)])
     translated_df = mapper.mapped
 ```
 
 The first argument of the mapping method is a list of tuples, where
-the first element of the tuple is the source field(s), the second element
-is the target field(s), and the (optional) third element is the
-transform.
+the first element of the tuple is the source column(s), the second element
+is the target column(s), and the (optional) third element is the
+transform.  In this example, we only have one map in the list, so the result is
+a dataframe with a single column:
+
+| translated |
+| -          |
+| uno        |
+| dos        |
+| tres       |
+
+
 
 ## Handling errors
 
@@ -81,13 +98,103 @@ method with the `on_error='redirect'` option via
     translation_errors_df = mapper.errors
 ```
 
-then we get two dataframes, one with all of the translated records, and another with the
-error records.
+then we get two dataframes, one with the translated records (`mapper.mapped`):
+
+| translated |
+| -          |
+| uno        |
+| dos        |
+| tres       |
+
+and another with the error records (`mapper.errors`):
+
+| num | name  | num_name | __errror__                                        |
+| -   | -     | -        | -                                                 |
+| 4   | four  | 4-four   | {'msg': 'ValueError(4): Unknown translation: 4... |
 
 
 ## Mapping cardinalities
 
-TODO: redo the stuff in the class docs.
+Each map can be defined with 0 or more sources, 0 or more targets, and
+0 or 1 transform functions.  The expected arguments and return values of the
+transform function is depenedent on the number of source and target columns used.
+
+* If the mapping has a single source and single target columns, then the
+  transform function should accept a single value and return a single value.
+* If the mapping involves multiple source columns, then the
+  function should accept a single dict-like object where the
+  keys are the names of the source columns.  In this case, if the mapping
+  has a single target, then the retun value of the transform function should contain
+  a single value.  However, if the mapping has multiple targets, then the return
+  value should be the same dict-like object that was passed to the function, with
+  the target-column keys of that object have been modified in place by the function.
+* If the mapping has no source columns, then the transform can either be a constant
+  (e.g., the integer 5), or a function that accepts no arguments but returns a value
+  (which may be useful if you want to use a random number generator).
+
+### Examples
+
+#### Zero-to-one
+
+Zero-to-one mappings can be used to set a column to a constant:
+
+```python
+df.mapping([None, 'five', transform=5])
+```
+
+Or defined by some function that generates output:
+
+```python
+import random
+df.mapping([(None, 'rando', random.random)]).mapped
+```
+
+#### One-to-one
+Our translation function defined above is an example of a one-to-one transform:
+
+```python
+df.mapping([('num', 'translated', translate)])
+```
+
+#### Many-to-one
+Concatenation is an example of a many-to-one operation:
+
+```python
+df.mapping([(['num', 'name'], 'num-name', lambda row: '-'.join(row.apply(str)))])
+```
+
+#### Many-to-Many
+Deconcatenation is an example of a one-to-many operation.  One-to-many operations
+require the same method signature as many-to-many:
+
+```python
+def deconcatenate(row):
+    split_values = row['num_name'].split('-')
+    row[num'] = split_values[0]
+    row[name'] = split_values[1]
+    return row
+
+df.mapping([('num_name', ['num', 'name'], deconcatenate)])
+```
+
+
+## Other options
+
+The mapping method also supports an `inplace` option, which is `False` by default.  This
+will modify the dataframe in place, bringing along all columns that it started with.  For example:
+
+```python
+    df.mapping([('num', 'translated', translate)], inplace=True).mapped
+```
+
+| num | name  | num_name | translated |
+| -   | -     | -        | -          |
+| 1   | one   | 1-one    | uno        |
+| 2   | two   | 2-two    | dos        |
+| 3   | three | 3-three  | tres       |
+
+Modifying the dataframe inplace can be useful when you need to chain together transformations,
+like when the output of one map in needed as the input for another map.
 
 ## Contributor Setup
 
