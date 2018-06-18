@@ -3,3 +3,5 @@
 *.pyc
 /.pytest_cache
 /.ipynb_checkpoints
+dist
+pandas_mapper.egg-info
