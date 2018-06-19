@@ -67,8 +67,8 @@ def translate(val):
 The translation can be accomplished using pandas-mapper via
 
 ```python
-    mapper = df.mapping([('num', 'translated', translate)])
-    translated_df = mapper.mapped
+mapper = df.mapping([('num', 'translated', translate)])
+translated_df = mapper.mapped
 ```
 
 The first argument of the mapping method is a list of tuples, where
@@ -93,9 +93,9 @@ mapping as above, pandas-mapper will raise a `ValueError`.  However, if we suppl
 method with the `on_error='redirect'` option via
 
 ```
-    mapper = df.mapping([('num', 'translated', translate)], on_error='redirect')
-    translated_df = mapper.mapped
-    translation_errors_df = mapper.errors
+mapper = df.mapping([('num', 'translated', translate)], on_error='redirect')
+translated_df = mapper.mapped
+translation_errors_df = mapper.errors
 ```
 
 then we get two dataframes, one with the translated records (`mapper.mapped`):
@@ -184,7 +184,7 @@ The mapping method also supports an `inplace` option, which is `False` by defaul
 will modify the dataframe in place, bringing along all columns that it started with.  For example:
 
 ```python
-    df.mapping([('num', 'translated', translate)], inplace=True).mapped
+df.mapping([('num', 'translated', translate)], inplace=True).mapped
 ```
 
 | num | name  | num_name | translated |
