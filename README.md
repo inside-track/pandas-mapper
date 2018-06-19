@@ -202,10 +202,10 @@ Download and install the [docker community edition](https://www.docker.com/)
 that is appropriate for your host os.
 
 We use [invoke](http://www.pyinvoke.org/) to setup and control the environment
-for developing, testing, and executing oa-tabcmdr.  This will require that you install
+for developing and testing this project.  This will require that you install
 invoke in your host OS.  You may be able to get away with just running
 `pip install invoke`.  However, the recommended method is to download and install
-[miniconda](https://conda.io/miniconda.html).  Then, create an oa-tabcmdr specific
+[miniconda](https://conda.io/miniconda.html).  Then, create a project-specific
 environment and install invoke in this environment:
 
 ```
