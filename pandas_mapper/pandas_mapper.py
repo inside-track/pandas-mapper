@@ -214,7 +214,7 @@ class PdMapper:
             self.mapped.drop(self.idx_errors, inplace=True)
             self.errors['__error__'].apply(lambda v: LOG.error(v))
         else:
-            raise ValueError('unknown on_error supplied: {}'.format(on_error))
+            raise ValueError('unknown on_error supplied: {}'.format(self.on_error))
 
 
 
