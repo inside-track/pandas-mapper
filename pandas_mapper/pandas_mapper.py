@@ -207,8 +207,13 @@ class PdMapper:
             return
 
         if self.on_error == 'raise':
+            for idx, err in self.errors.iterrows():
+                LOG.error('Mapping error at index %s: %s', idx, err['__error__'])
+
             raise PdMappingError(
-                '{} mapping errors detected:\n{}'.format(len(self.errors), self.errors)
+                'Raising exception due to {} mapping errors. See log for details.'.format(
+                    len(self.errors)
+                )
             )
         elif self.on_error == 'redirect':
             self.mapped.drop(self.idx_errors, inplace=True)
