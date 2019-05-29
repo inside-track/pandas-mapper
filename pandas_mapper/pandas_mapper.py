@@ -37,15 +37,8 @@ class PdMap:
 
         '''
 
-        if isinstance(source, str):
-            self.sources = [source]
-        else:
-            self.sources = list(source or [])
-
-        if isinstance(target, str):
-            self.targets = [target]
-        else:
-            self.targets = list(target or [])
+        self.sources = [source] if isinstance(source, str) else list(source or [])
+        self.targets = [target] if isinstance(target, str) else list(target or [])
 
         self.transform = transform
 
