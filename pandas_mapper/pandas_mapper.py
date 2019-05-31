@@ -5,7 +5,13 @@ import pandas as pd
 import pandas_mapper
 from pandas_mapper import LOG
 
-class MissingSourceFieldError(Exception): pass
+class MissingSourceFieldError(Exception):
+    def __init__(self, source_name):
+        self.source_name = source_name
+
+    def __str__(self):
+        return '"{}" field not in the source dataframe'.format(self.source_name)
+
 class PdMappingError(Exception): pass
 
 class PdMap:
