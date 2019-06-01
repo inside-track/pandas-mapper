@@ -232,16 +232,15 @@ class PdMapper:
         return self
 
 
-def normalize_amaps_to_single_targets(pdMaps):
+def normalize_amaps_to_single_targets(amap):
     normalized_amaps = list()
-    for amap in pdMaps:
-        for target in amap.targets:
-            amap_normalized = pdMap(
-                    source=amap.sources,
-                    target=target
-                    transform=amap.transform
-                )
-            normalized_amaps.append(amap_normalized)
+    for target in amap.targets:
+        amap_normalized = pdMap(
+                source=amap.sources,
+                target=target
+                transform=amap.transform
+            )
+        normalized_amaps.append(amap_normalized)
     return normalized_amaps
 
 # Monkeypatch Pandas for ease of use
