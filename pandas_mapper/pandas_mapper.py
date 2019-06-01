@@ -4,6 +4,7 @@ import pandas as pd
 
 import pandas_mapper
 from pandas_mapper import LOG
+from collections import UserList
 
 class MissingSourceFieldError(Exception):
     def __init__(self, source_name):
@@ -231,13 +232,10 @@ class PdMapper:
 
         return self
 
-Class SingleTargetView(pd.DataFrame):
+class SingleTargetView(UserList):
     def __init__(pdMaps):
         nmaps = map(lambda amap: normalize_amap_to_single_target(amap), pdMaps)
-        nmaps_dict = map(
-                lambda amap: {"sources": amap.sources, "target": amap.targets, "transform": amap.transform}
-                )
-        super().__init__(nmaps_dict)
+        super().__init__(nmaps)
 
     @staticmethod
     def normalize_amap_to_single_target(amap):
@@ -253,29 +251,40 @@ Class SingleTargetView(pd.DataFrame):
 
 
 class PdMapsIterator:
-    def __init__(self, pdMaps_df, init_sources):
-        self.init_sources = init_sources
-        self.pdmaps_df = pdmaps_df
-        self.pdmaps_df['done'] = False
+    def __init__(self, normzlied_maps, init_sources):
+        self.available_sources = init_sources
+        self.nmaps = normalied_maps
 
     def __iter__(self):
         raise NotImplementedError
 
-class PdMapsSingleIteraor:
+class PdMapsSimpleIterator(PdMapsIterator):
     def __iter__(self):
-        next_pdmap = self.df.query(
-                'sources in {} and NOT done'.format(set(self.init_sources))
-                ).head(1)
-        self.init_sources.append(next_pdmap)
-        PdMap(**next_pd_map)
+        for amap in self.nmaps:
+            yield amap
+
+class PdMapsGraphIterator(PdMapsIterator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.last_pdmap = None
+
+    def __update_available_sources__(self):
+        if self.last_pdmap is not None and len(self.last_pdmap.errors['indices']) == 0:
+            self.available_source.append(self.last_pdmap.sources)
+
+    def __get_next_pd_map__(self):
+        next_pdmaps = filter(
+                lambda amap: set(amaps.sources) - set(self.available_sources) == set() ,
+                self.nmaps
+                )
+        for next_map in next_pdmaps:
+            yield next_pdmap
+
+    def __iter__(self):
+        self.__update_available_sources__()
+        next_pdmap = next(self.__get_next_pd_map__())
+        self.nmaps.remove(next_pdmap)
         yield next_pdmap
-
-class PdMapsGraphIterator:
-    def __ini__(self):
-        super().__init__()
-
-    def gen_graph(self):
-        iterator
 
 # Monkeypatch Pandas for ease of use
 def mapping(self, maps, inplace=False, on_error='raise'):
