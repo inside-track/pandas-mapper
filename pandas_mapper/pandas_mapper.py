@@ -231,17 +231,51 @@ class PdMapper:
 
         return self
 
+Class SingleTargetView(pd.DataFrame):
+    def __init__(pdMaps):
+        nmaps = map(lambda amap: normalize_amap_to_single_target(amap), pdMaps)
+        nmaps_dict = map(
+                lambda amap: {"sources": amap.sources, "target": amap.targets, "transform": amap.transform}
+                )
+        super().__init__(nmaps_dict)
 
-def normalize_amaps_to_single_targets(amap):
-    normalized_amaps = list()
-    for target in amap.targets:
-        amap_normalized = pdMap(
-                source=amap.sources,
-                target=target
-                transform=amap.transform
-            )
-        normalized_amaps.append(amap_normalized)
-    return normalized_amaps
+    @staticmethod
+    def normalize_amap_to_single_target(amap):
+        normalized_amaps = list()
+        for target in amap.targets:
+            amap_normalized = pdMap(
+                    source=amap.sources,
+                    target=target
+                    transform=amap.transform
+                )
+            normalized_amaps.append(amap_normalized)
+        return normalized_amaps
+
+
+class PdMapsIterator:
+    def __init__(self, pdMaps_df, init_sources):
+        self.init_sources = init_sources
+        self.pdmaps_df = pdmaps_df
+        self.pdmaps_df['done'] = False
+
+    def __iter__(self):
+        raise NotImplementedError
+
+class PdMapsSingleIteraor:
+    def __iter__(self):
+        next_pdmap = self.df.query(
+                'sources in {} and NOT done'.format(set(self.init_sources))
+                ).head(1)
+        self.init_sources.append(next_pdmap)
+        PdMap(**next_pd_map)
+        yield next_pdmap
+
+class PdMapsGraphIterator:
+    def __ini__(self):
+        super().__init__()
+
+    def gen_graph(self):
+        iterator
 
 # Monkeypatch Pandas for ease of use
 def mapping(self, maps, inplace=False, on_error='raise'):
