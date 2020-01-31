@@ -210,11 +210,11 @@ environment and install invoke in this environment:
 
 ```
 conda create --name pandas-mapper python=3.6
-source activate pandas-mapper
+conda activate pandas-mapper
 pip install invoke
 ```
 
-**Note**: if you use miniconda, you will have to run `source activate pandas-mapper`
+**Note**: if you use miniconda, you will have to run `conda activate pandas-mapper`
 each time you start a new terminal session.
 
 Once invoke is installed, you can build the docker containers to use the dev/test environment
