@@ -31,7 +31,7 @@ def deconcatenate(row):
     return row
 
 
-
+class ManyToManyError(Exception): pass
 
 class TestBasic:
 
@@ -106,6 +106,43 @@ class TestBasic:
         })
 
         assert_frame_equal(actual_df, expected_df)
+
+    def test_many_to_many_map(self, df):
+        '''
+        Many-to-many map
+        '''
+
+        def concap(row):
+            row['name_num'] = f"{row['num']} is {row['name']}"
+            row['name_num_cap'] = row['name_num'].upper()
+            return row
+
+        mapper = df.mapping([(['name', 'num'], ['name_num', 'name_num_cap'], concap)])
+        actual_df = mapper.mapped
+        expected_df = pd.DataFrame({
+            'name_num': ['1 is one', '2 is two', '3 is three'],
+            'name_num_cap': ['1 IS ONE', '2 IS TWO', '3 IS THREE'],
+        })
+        assert_frame_equal(actual_df, expected_df)
+
+    def test_many_to_many_map_errors(self, df):
+        '''
+        Many-to-many map that redirects an error
+        '''
+
+        def concap(row):
+            if row['num'] == 2:
+                raise ManyToManyError('Some random exception in the middle')
+            row['name_num'] = f"{row['num']} is {row['name']}"
+            row['name_num_cap'] = row['name_num'].upper()
+            row['3rdvar'] = 3
+
+            return row[['name_num', 'name_num_cap', '3rdvar']]
+
+        mapper = df.mapping([(['name', 'num'], ['name_num', 'name_num_cap', '3rdvar'], concap)], on_error='redirect')
+
+        actual_msg = mapper.errors['__error__'].iloc[0]
+        assert actual_msg['err'].__class__ is ManyToManyError
 
     def test_multiple_maps(self, df):
         '''

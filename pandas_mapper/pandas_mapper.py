@@ -93,9 +93,11 @@ class PdMap:
         try:
             result = self.transform(arg)
         except Exception as err:
-            result = (arg, err)
+            err_result = (arg, err)
+            result = [err_result] * len(self.targets)
+
             self.errors['indices'].append(idx)
-            self.errors['results'].append(result)
+            self.errors['results'].append(err_result)
         return result
 
 
