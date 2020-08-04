@@ -108,10 +108,10 @@ class PdMap:
         return self._try_transform(row['__none__'], row.name)
 
     def _transform_many_to_one(self, row):
-        return self._try_transform(row, row.name)
+        return self._try_transform(row.copy(), row.name)
 
     def _transform_many_to_many(self, row):
-        return self._try_transform(row, row.name)
+        return self._try_transform(row.copy(), row.name)
 
 
     def _apply_copy(self, source_df):
